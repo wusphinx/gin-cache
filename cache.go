@@ -119,6 +119,16 @@ func Cache(
 	}
 }
 
+func CacheByCookieKey(key string, defaultCacheStore persist.CacheStore, defaultExpire time.Duration, opts ...Option) gin.HandlerFunc {
+	opts = append(opts, WithCacheStrategyByRequest(func(c *gin.Context) (bool, Strategy) {
+		cacheKey, _ := c.Cookie(key)
+		return true, Strategy{
+			CacheKey: cacheKey,
+		}
+	}))
+	return Cache(defaultCacheStore, defaultExpire, opts...)
+}
+
 // CacheByRequestURI a shortcut function for caching response by uri
 func CacheByRequestURI(defaultCacheStore persist.CacheStore, defaultExpire time.Duration, opts ...Option) gin.HandlerFunc {
 	opts = append(opts, WithCacheStrategyByRequest(func(c *gin.Context) (bool, Strategy) {
